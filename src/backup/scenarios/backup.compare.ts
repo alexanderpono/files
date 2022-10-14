@@ -1,8 +1,9 @@
+import { Input } from '@src/backup/backup.types';
 import { getChangedFiles, getDirStats, getOnlyInFirst } from './backup.utils';
 
-export async function compare(dir1: string, dir2: string) {
-    const oldDir = await getDirStats(dir1, '');
-    const newDir = await getDirStats(dir2, '');
+export async function compare(dir1: string, dir2: string, input: Input) {
+    const oldDir = await getDirStats(dir1, '', input);
+    const newDir = await getDirStats(dir2, '', input);
 
     console.log('oldDir=', oldDir);
     console.log('newDir=', newDir);
