@@ -1,28 +1,4 @@
-import { Input, DirStats, DirEntry, FileStats, InputFileStats } from '@src/backup/backup.types';
-
-export const getDirStats = async (
-    rootPath: string,
-    localDirPath: string,
-    input: Input
-): Promise<DirStats> => {
-    const result: DirStats = {};
-    const dirHandle = (await input.openDirectory(rootPath)) as Iterable<DirEntry>;
-    for await (const dirent of dirHandle) {
-        const filePath = rootPath + '/' + dirent.name;
-        const localPath = localDirPath + '/' + dirent.name;
-        const stats = (await input.getFileStats(filePath)) as InputFileStats;
-        if (stats.isDirectory()) {
-            const subResult = await getDirStats(filePath, localPath, input);
-            Object.entries(subResult).forEach(([path, data]) => {
-                result[path] = data;
-            });
-            continue;
-        }
-        result[localPath] = { name: localPath, size: stats.size, mtime: stats.mtime };
-    }
-
-    return result;
-};
+import { DirStats, CompareResult } from '@src/backup/backup.types';
 
 export const getOnlyInFirst = (oldDir: DirStats, newDir: DirStats) =>
     Object.keys(oldDir).filter((path: string) => typeof newDir[path] === 'undefined');
@@ -31,3 +7,14 @@ export const getChangedFiles = (oldDir: DirStats, newDir: DirStats) =>
     Object.keys(oldDir)
         .filter((path: string) => typeof newDir[path] !== 'undefined')
         .filter((path: string) => newDir[path].mtime.toString() !== oldDir[path].mtime.toString());
+
+export const compare = (oldDir: DirStats, newDir: DirStats): CompareResult => {
+    const onlyInOld = getOnlyInFirst(oldDir, newDir);
+    const onlyInNew = getOnlyInFirst(newDir, oldDir);
+    const changedFiles = getChangedFiles(oldDir, newDir);
+    return {
+        onlyInOld,
+        onlyInNew,
+        changedFiles
+    };
+};
