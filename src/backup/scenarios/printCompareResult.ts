@@ -25,9 +25,5 @@ export const printCompareResult = async ({
     output.printCompareResult(compareResult);
 
     const fsScripts = createFsScripts(dir1, dir2, backupDir, compareResult);
-    console.log('fsScripts.backupDeleted=', fsScripts.backupDeleted);
-    console.log('fsScripts.backupUpdateOld=', fsScripts.backupUpdateOld);
-    console.log('fsScripts.backupUpdateNew=', fsScripts.backupUpdateNew);
-    console.log('fsScripts.backupNew=', fsScripts.backupNew);
-    console.log('fsScripts.delFromOld=', fsScripts.delFromOld);
+    output.printScripts(fsScripts);
 };

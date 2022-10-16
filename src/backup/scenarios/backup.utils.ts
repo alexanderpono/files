@@ -1,10 +1,4 @@
-import {
-    DirStats,
-    CompareResult,
-    fs,
-    DelFileAction,
-    CopyFileAction
-} from '@src/backup/backup.types';
+import { DirStats, CompareResult, fs, FsScripts } from '@src/backup/backup.types';
 
 export const getOnlyInFirst = (oldDir: DirStats, newDir: DirStats) =>
     Object.keys(oldDir).filter((path: string) => typeof newDir[path] === 'undefined');
@@ -25,13 +19,6 @@ export const compare = (oldDir: DirStats, newDir: DirStats): CompareResult => {
     };
 };
 
-interface FsScripts {
-    delFromOld: DelFileAction[];
-    backupDeleted: CopyFileAction[];
-    backupUpdateOld: CopyFileAction[];
-    backupUpdateNew: CopyFileAction[];
-    backupNew: CopyFileAction[];
-}
 export const createFsScripts = (
     oldDir: string,
     newDir: string,
@@ -55,6 +42,25 @@ export const createFsScripts = (
     );
 
     const delFromOld = compare.onlyInOld.map((fName: string) => fs.delFile(oldDir + fName));
+    const copyNewFiles = compare.onlyInNew.map((fName: string) =>
+        fs.copyFile(newDir + fName, oldDir + fName)
+    );
 
-    return { delFromOld, backupDeleted, backupUpdateOld, backupUpdateNew, backupNew };
+    const replaceOldFilesDel = compare.changedFiles.map((fName: string) =>
+        fs.delFile(oldDir + fName)
+    );
+    const replaceOldFilesCopy = compare.changedFiles.map((fName: string) =>
+        fs.copyFile(newDir + fName, oldDir + fName)
+    );
+
+    return {
+        delFromOld,
+        backupDeleted,
+        backupUpdateOld,
+        backupUpdateNew,
+        backupNew,
+        copyNewFiles,
+        replaceOldFilesDel,
+        replaceOldFilesCopy
+    };
 };

@@ -45,3 +45,15 @@ export const fs = {
         payload: { fName }
     })
 };
+
+export interface FsScripts {
+    backupDeleted: CopyFileAction[];
+    backupUpdateOld: CopyFileAction[];
+    backupUpdateNew: CopyFileAction[];
+    backupNew: CopyFileAction[];
+
+    copyNewFiles: CopyFileAction[];
+    delFromOld: DelFileAction[];
+    replaceOldFilesDel: DelFileAction[];
+    replaceOldFilesCopy: CopyFileAction[];
+}
