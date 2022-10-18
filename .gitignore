@@ -1,7 +1,7 @@
 coverage
 output
 node_modules
-d1
-d2
-backups
+backup
+work
+diff
 

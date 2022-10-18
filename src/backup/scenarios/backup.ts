@@ -4,30 +4,30 @@ import { ConOutput } from '@src/backup/ports/ConOutput';
 import { FsOutput } from '../ports/FsOutput';
 
 export interface BackupProps {
-    dir1: string;
-    dir2: string;
-    backupDir: string;
+    oldDir: string;
+    newDir: string;
+    diffDir: string;
     input: FsInput;
     conOutput: ConOutput;
     fsOutput: FsOutput;
 }
 
 export const backup = async ({
-    dir1,
-    dir2,
+    oldDir,
+    newDir,
     input,
     conOutput,
     fsOutput,
-    backupDir
+    diffDir
 }: BackupProps) => {
-    const oldDir = await input.getDirStats(dir1, '');
-    const newDir = await input.getDirStats(dir2, '');
+    const oldDirStats = await input.getDirStats(oldDir, '');
+    const newDirStats = await input.getDirStats(newDir, '');
 
-    const compareResult = compare(oldDir, newDir);
-    conOutput.printDirs(oldDir, newDir);
+    const compareResult = compare(oldDirStats, newDirStats);
+    conOutput.printDirs(oldDirStats, newDirStats);
     conOutput.printCompareResult(compareResult);
 
-    const fsScripts = createFsScripts(dir1, dir2, backupDir, compareResult);
+    const fsScripts = createFsScripts(oldDir, newDir, diffDir, compareResult);
 
     const backupPromises = [
         ...fsOutput.execCopyScript(fsScripts.backupDeleted),

@@ -3,27 +3,27 @@ import { FsInput } from '@src/backup/ports/FsInput';
 import { ConOutput } from '@src/backup/ports/ConOutput';
 
 export interface PrintCompareProps {
-    dir1: string;
-    dir2: string;
-    backupDir: string;
+    oldDir: string;
+    newDir: string;
+    diffDir: string;
     input: FsInput;
     output: ConOutput;
 }
 export const printCompareResult = async ({
-    dir1,
-    dir2,
+    oldDir,
+    newDir,
     input,
     output,
-    backupDir
+    diffDir
 }: PrintCompareProps) => {
-    const oldDir = await input.getDirStats(dir1, '');
-    const newDir = await input.getDirStats(dir2, '');
+    const oldDirStats = await input.getDirStats(oldDir, '');
+    const newDirStats = await input.getDirStats(newDir, '');
 
-    const compareResult = compare(oldDir, newDir);
+    const compareResult = compare(oldDirStats, newDirStats);
 
-    output.printDirs(oldDir, newDir);
+    output.printDirs(oldDirStats, newDirStats);
     output.printCompareResult(compareResult);
 
-    const fsScripts = createFsScripts(dir1, dir2, backupDir, compareResult);
+    const fsScripts = createFsScripts(oldDir, newDir, diffDir, compareResult);
     output.printScripts(fsScripts);
 };
