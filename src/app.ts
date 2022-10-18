@@ -1,12 +1,9 @@
-import { FsInput } from '@src/backup/ports/FsInput';
-import { ConOutput } from '@src/backup/ports/ConOutput';
-import { printCompareResult } from './backup/scenarios/printCompareResult';
-import { backup } from './backup/scenarios/backup';
-import { FsOutput } from './backup/ports/FsOutput';
+import { printScenario } from './backup/scenarios/printCompareResult';
+import { backupScenario } from './backup/scenarios/backup';
 import { program } from 'commander';
 import { Scenario } from './const';
 const { description, name, version } = require('../package.json');
-import path from 'path';
+import { Options } from './backup/backup.types';
 
 // renameJpg('/tmp/pic').catch(console.error);
 
@@ -20,53 +17,19 @@ program
     .option('-s, --scenario [scenario]', 'scenario name')
     .parse(process.argv);
 
-const options = program.opts();
+const options: Options = program.opts();
 if (Object.keys(options).length === 0) {
     program.help();
 }
 
-function assertParamIsSet(scenario: string, param: string, paramName: string) {
-    if (typeof param !== 'string') {
-        console.log(`${scenario}: ${paramName} is not specified. Exiting...`);
-        process.exit();
-    }
-}
-
-const curDateDir = new Date(Date.now())
-    .toISOString()
-    .replace(/:/g, '-')
-    .replace(/\./g, '-')
-    .replace(/T/g, '---');
-
 switch (options.scenario) {
     case Scenario.print: {
-        assertParamIsSet(Scenario.print, options.workDir, '-w <workDir>');
-        assertParamIsSet(Scenario.print, options.backupDir, '-b <backupDir>');
-        assertParamIsSet(Scenario.print, options.diffDir, '-d <diffDir>');
-        printCompareResult({
-            newDir: options.workDir,
-            oldDir: options.backupDir,
-            diffDir: path.format({ dir: options.diffDir, name: curDateDir }),
-            input: new FsInput(),
-            output: new ConOutput()
-        });
+        printScenario(options);
         break;
     }
 
     case Scenario.backup: {
-        assertParamIsSet(Scenario.print, options.workDir, '-w <workDir>');
-        assertParamIsSet(Scenario.print, options.backupDir, '-b <backupDir>');
-        assertParamIsSet(Scenario.print, options.diffDir, '-d <diffDir>');
-        const conOutput = new ConOutput();
-        backup({
-            newDir: options.workDir,
-            oldDir: options.backupDir,
-            diffDir: path.format({ dir: options.diffDir, name: curDateDir }),
-            input: new FsInput(),
-            conOutput,
-            fsOutput: new FsOutput(conOutput)
-        });
-
+        backupScenario(options);
         break;
     }
 }

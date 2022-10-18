@@ -57,3 +57,10 @@ export interface FsScripts {
     replaceOldFilesDel: DelFileAction[];
     replaceOldFilesCopy: CopyFileAction[];
 }
+
+export interface Options {
+    workDir: string;
+    backupDir: string;
+    diffDir: string;
+    scenario: string;
+}

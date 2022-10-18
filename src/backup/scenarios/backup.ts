@@ -1,7 +1,10 @@
-import { compare, createFsScripts } from './backup.utils';
+import { assertParamIsSet, compare, createFsScripts, getCurDateDir } from './backup.utils';
 import { FsInput } from '@src/backup/ports/FsInput';
 import { ConOutput } from '@src/backup/ports/ConOutput';
 import { FsOutput } from '../ports/FsOutput';
+import { Options } from '../backup.types';
+import { Scenario } from '@src/const';
+import path from 'path';
 
 export interface BackupProps {
     oldDir: string;
@@ -12,14 +15,7 @@ export interface BackupProps {
     fsOutput: FsOutput;
 }
 
-export const backup = async ({
-    oldDir,
-    newDir,
-    input,
-    conOutput,
-    fsOutput,
-    diffDir
-}: BackupProps) => {
+const backup = async ({ oldDir, newDir, input, conOutput, fsOutput, diffDir }: BackupProps) => {
     const oldDirStats = await input.getDirStats(oldDir, '');
     const newDirStats = await input.getDirStats(newDir, '');
 
@@ -47,4 +43,21 @@ export const backup = async ({
         .catch(() => {
             console.log('some of backupPromises failed');
         });
+};
+
+export const backupScenario = (options: Options) => {
+    const curDateDir = getCurDateDir();
+
+    assertParamIsSet(Scenario.print, options.workDir, '-w <workDir>');
+    assertParamIsSet(Scenario.print, options.backupDir, '-b <backupDir>');
+    assertParamIsSet(Scenario.print, options.diffDir, '-d <diffDir>');
+    const conOutput = new ConOutput();
+    backup({
+        newDir: options.workDir,
+        oldDir: options.backupDir,
+        diffDir: path.format({ dir: options.diffDir, name: curDateDir }),
+        input: new FsInput(),
+        conOutput,
+        fsOutput: new FsOutput(conOutput)
+    });
 };
