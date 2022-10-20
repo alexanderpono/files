@@ -11,16 +11,20 @@ interface PrintCompareProps {
     diffDir: string;
     input: FsInput;
     output: ConOutput;
+    skipFiles: string[];
 }
 const printCompareResult = async ({
     oldDir,
     newDir,
     input,
     output,
-    diffDir
+    diffDir,
+    skipFiles
 }: PrintCompareProps) => {
-    const oldDirStats = await input.getDirStats(oldDir, '');
-    const newDirStats = await input.getDirStats(newDir, '');
+    output.printDescription('print');
+
+    const oldDirStats = await input.getDirStats(oldDir, '', skipFiles);
+    const newDirStats = await input.getDirStats(newDir, '', skipFiles);
 
     const compareResult = compare(oldDirStats, newDirStats);
 
@@ -42,6 +46,7 @@ export const printScenario = (options: Options) => {
         oldDir: options.backupDir,
         diffDir: path.format({ dir: options.diffDir, name: curDateDir }),
         input: new FsInput(),
-        output: new ConOutput()
+        output: new ConOutput(),
+        skipFiles: options.skip
     });
 };

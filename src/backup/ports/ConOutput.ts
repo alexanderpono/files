@@ -1,4 +1,5 @@
 import { CompareResult, DirStats, FsScripts } from '@src/backup/backup.types';
+const { description, name, version } = require('../../../package.json');
 
 export class ConOutput {
     printDirs = (oldDir: DirStats, newDir: DirStats) => {
@@ -23,5 +24,10 @@ export class ConOutput {
         console.log('fsScripts.backupUpdateNew=', fsScripts.backupUpdateNew);
         console.log('fsScripts.backupNew=', fsScripts.backupNew);
         console.log('fsScripts.delFromOld=', fsScripts.delFromOld);
+    };
+
+    printDescription = (scenario: string) => {
+        console.log(`${name} version ${version} ${description}`);
+        console.log(`selected scenario: ${scenario}`);
     };
 }

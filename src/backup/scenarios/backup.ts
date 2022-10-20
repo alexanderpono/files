@@ -13,11 +13,22 @@ export interface BackupProps {
     input: FsInput;
     conOutput: ConOutput;
     fsOutput: FsOutput;
+    skipFiles: string[];
 }
 
-const backup = async ({ oldDir, newDir, input, conOutput, fsOutput, diffDir }: BackupProps) => {
-    const oldDirStats = await input.getDirStats(oldDir, '');
-    const newDirStats = await input.getDirStats(newDir, '');
+const backup = async ({
+    oldDir,
+    newDir,
+    input,
+    conOutput,
+    fsOutput,
+    diffDir,
+    skipFiles
+}: BackupProps) => {
+    conOutput.printDescription('backup');
+
+    const oldDirStats = await input.getDirStats(oldDir, '', skipFiles);
+    const newDirStats = await input.getDirStats(newDir, '', skipFiles);
 
     const compareResult = compare(oldDirStats, newDirStats);
     conOutput.printDirs(oldDirStats, newDirStats);
@@ -58,6 +69,7 @@ export const backupScenario = (options: Options) => {
         diffDir: path.format({ dir: options.diffDir, name: curDateDir }),
         input: new FsInput(),
         conOutput,
-        fsOutput: new FsOutput(conOutput)
+        fsOutput: new FsOutput(conOutput),
+        skipFiles: options.skip
     });
 };

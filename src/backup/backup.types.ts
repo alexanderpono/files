@@ -63,4 +63,5 @@ export interface Options {
     backupDir: string;
     diffDir: string;
     scenario: string;
+    skip: string[];
 }

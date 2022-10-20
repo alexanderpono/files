@@ -11,10 +11,11 @@ program
     .name(name)
     .version(version)
     .description(description)
-    .option('-w, --workDir [workDir]', 'path to directory with original files')
-    .option('-b, --backupDir [backupDir]', 'path to directory of backup copy')
-    .option('-d, --diffDir [diffDir]', 'path to directory to store differences')
-    .option('-s, --scenario [scenario]', 'scenario name')
+    .option('-w, --workDir <workDir>', 'path to directory with original files')
+    .option('-b, --backupDir <backupDir>', 'path to directory of backup copy')
+    .option('-d, --diffDir <diffDir>', 'path to directory to store differences')
+    .option('-k, --skip <files...>', 'directory or file names not to process [file1,file2...]')
+    .option('-s, --scenario <scenario>', 'scenario name', 'print')
     .parse(process.argv);
 
 const options: Options = program.opts();

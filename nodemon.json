@@ -2,5 +2,5 @@
     "watch": ["src"],
     "ext": "ts,json",
     "ignore": ["src/**/*.spec.ts"],
-    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -w ./work -b ./backup -d ./diff -s print"
+    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -w ./work -b ./backup -d ./diff -s print -k .git node_modules"
 }
