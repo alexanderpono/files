@@ -16,6 +16,7 @@ program
     .option('-d, --diffDir <diffDir>', 'path to directory to store differences')
     .option('-k, --skip <files...>', 'directory or file names not to process [file1,file2...]')
     .option('-s, --scenario <scenario>', 'scenario name', 'print')
+    .option('-o, --options <options>', 'verbose options [onONC]')
     .parse(process.argv);
 
 const options: Options = program.opts();

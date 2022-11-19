@@ -2,8 +2,9 @@ import { assertParamIsSet, compare, createFsScripts, getCurDateDir } from './bac
 import { FsInput } from '@src/backup/ports/FsInput';
 import { ConOutput } from '@src/backup/ports/ConOutput';
 import { Scenario } from '@src/const';
-import { Options } from '../backup.types';
+import { Options } from '@src/backup/backup.types';
 import path from 'path';
+import { DEFAULT_OPTIONS, parseOptions, PrintOptions } from './common.utils';
 
 interface PrintCompareProps {
     oldDir: string;
@@ -12,14 +13,17 @@ interface PrintCompareProps {
     input: FsInput;
     output: ConOutput;
     skipFiles: string[];
+    options: string;
 }
+
 const printCompareResult = async ({
     oldDir,
     newDir,
     input,
     output,
     diffDir,
-    skipFiles
+    skipFiles,
+    options
 }: PrintCompareProps) => {
     output.printDescription('print');
 
@@ -28,11 +32,12 @@ const printCompareResult = async ({
 
     const compareResult = compare(oldDirStats, newDirStats);
 
-    output.printDirs(oldDirStats, newDirStats);
-    output.printCompareResult(compareResult);
+    const parsedOptions: PrintOptions = parseOptions(options);
+    output.printDirs(oldDirStats, newDirStats, parsedOptions);
+    output.printCompareResult(compareResult, parsedOptions);
 
     const fsScripts = createFsScripts(oldDir, newDir, diffDir, compareResult);
-    output.printScripts(fsScripts);
+    output.printScripts(fsScripts, parsedOptions);
 };
 
 export const printScenario = (options: Options) => {
@@ -47,6 +52,7 @@ export const printScenario = (options: Options) => {
         diffDir: path.format({ dir: options.diffDir, name: curDateDir }),
         input: new FsInput(),
         output: new ConOutput(),
-        skipFiles: options.skip
+        skipFiles: options.skip,
+        options: typeof options.options !== 'undefined' ? options.options : DEFAULT_OPTIONS
     });
 };

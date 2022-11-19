@@ -1,10 +1,11 @@
 import { assertParamIsSet, compare, createFsScripts, getCurDateDir } from './backup.utils';
 import { FsInput } from '@src/backup/ports/FsInput';
 import { ConOutput } from '@src/backup/ports/ConOutput';
-import { FsOutput } from '../ports/FsOutput';
-import { Options } from '../backup.types';
+import { FsOutput } from '@src/backup/ports/FsOutput';
+import { Options } from '@src/backup/backup.types';
 import { Scenario } from '@src/const';
 import path from 'path';
+import { DEFAULT_OPTIONS, parseOptions, PrintOptions } from './common.utils';
 
 export interface BackupProps {
     oldDir: string;
@@ -14,6 +15,7 @@ export interface BackupProps {
     conOutput: ConOutput;
     fsOutput: FsOutput;
     skipFiles: string[];
+    options: string;
 }
 
 const backup = async ({
@@ -23,7 +25,8 @@ const backup = async ({
     conOutput,
     fsOutput,
     diffDir,
-    skipFiles
+    skipFiles,
+    options
 }: BackupProps) => {
     conOutput.printDescription('backup');
 
@@ -31,8 +34,11 @@ const backup = async ({
     const newDirStats = await input.getDirStats(newDir, '', skipFiles);
 
     const compareResult = compare(oldDirStats, newDirStats);
-    conOutput.printDirs(oldDirStats, newDirStats);
-    conOutput.printCompareResult(compareResult);
+
+    const parsedOptions: PrintOptions = parseOptions(options);
+
+    conOutput.printDirs(oldDirStats, newDirStats, parsedOptions);
+    conOutput.printCompareResult(compareResult, parsedOptions);
 
     const fsScripts = createFsScripts(oldDir, newDir, diffDir, compareResult);
 
@@ -70,6 +76,7 @@ export const backupScenario = (options: Options) => {
         input: new FsInput(),
         conOutput,
         fsOutput: new FsOutput(conOutput),
-        skipFiles: options.skip
+        skipFiles: options.skip,
+        options: typeof options.options !== 'undefined' ? options.options : DEFAULT_OPTIONS
     });
 };
