@@ -1,11 +1,10 @@
 import { assertParamIsSet, compare, createFsScripts, getCurDateDir } from './backup.utils';
 import { FsInput } from '@src/backup/ports/FsInput';
-import { ConOutput } from '@src/backup/ports/ConOutput';
+import { ConOutput, DEFAULT_OPTIONS } from '@src/backup/ports/ConOutput';
 import { FsOutput } from '@src/backup/ports/FsOutput';
 import { Options } from '@src/backup/backup.types';
 import { Scenario } from '@src/const';
 import path from 'path';
-import { DEFAULT_OPTIONS, parseOptions, PrintOptions } from './common.utils';
 
 export interface BackupProps {
     oldDir: string;
@@ -15,7 +14,6 @@ export interface BackupProps {
     conOutput: ConOutput;
     fsOutput: FsOutput;
     skipFiles: string[];
-    options: string;
 }
 
 const backup = async ({
@@ -25,8 +23,7 @@ const backup = async ({
     conOutput,
     fsOutput,
     diffDir,
-    skipFiles,
-    options
+    skipFiles
 }: BackupProps) => {
     conOutput.printDescription('backup');
 
@@ -35,10 +32,8 @@ const backup = async ({
 
     const compareResult = compare(oldDirStats, newDirStats);
 
-    const parsedOptions: PrintOptions = parseOptions(options);
-
-    conOutput.printDirs(oldDirStats, newDirStats, parsedOptions);
-    conOutput.printCompareResult(compareResult, parsedOptions);
+    conOutput.printDirs(oldDirStats, newDirStats);
+    conOutput.printCompareResult(compareResult);
 
     const fsScripts = createFsScripts(oldDir, newDir, diffDir, compareResult);
 
@@ -64,11 +59,12 @@ const backup = async ({
 
 export const backupScenario = (options: Options) => {
     const curDateDir = getCurDateDir();
+    const printOptions = typeof options.options !== 'undefined' ? options.options : DEFAULT_OPTIONS;
 
     assertParamIsSet(Scenario.print, options.workDir, '-w <workDir>');
     assertParamIsSet(Scenario.print, options.backupDir, '-b <backupDir>');
     assertParamIsSet(Scenario.print, options.diffDir, '-d <diffDir>');
-    const conOutput = new ConOutput();
+    const conOutput = new ConOutput(printOptions);
     backup({
         newDir: options.workDir,
         oldDir: options.backupDir,
@@ -76,7 +72,6 @@ export const backupScenario = (options: Options) => {
         input: new FsInput(),
         conOutput,
         fsOutput: new FsOutput(conOutput),
-        skipFiles: options.skip,
-        options: typeof options.options !== 'undefined' ? options.options : DEFAULT_OPTIONS
+        skipFiles: options.skip
     });
 };
