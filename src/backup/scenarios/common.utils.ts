@@ -47,7 +47,7 @@ export const parseOptions = (options: string): PrintOptions => {
         printOnlyInOld: optionsSet.has(PrintOption.PRINT_ONLY_IN_OLD),
         printOnlyInNew: optionsSet.has(PrintOption.PRINT_ONLY_IN_NEW),
         printChanged: optionsSet.has(PrintOption.PRINT_CHANGED),
-        printBackupDeleted: optionsSet.has(PrintOption.PRINT_CHANGED),
+        printBackupDeleted: optionsSet.has(PrintOption.PRINT_SCRIPT_BACKUP_DELETED),
         printUpdateOld: optionsSet.has(PrintOption.PRINT_SCRIPT_UPDATE_OLD),
         printUpdateNew: optionsSet.has(PrintOption.PRINT_SCRIPT_UPDATE_NEW),
         printBackupNew: optionsSet.has(PrintOption.PRINT_SCRIPT_BACKUP_NEW),
