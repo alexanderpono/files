@@ -2,6 +2,6 @@
     "watch": ["src"],
     "ext": "ts,json",
     "ignore": ["src/**/*.spec.ts"],
-    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -w ./work -b ./backup2 -d ./diff -s print -o O -k .git node_modules",
+    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -w ./work -b ./backup2 -d ./diff -s print -o ONC -k .git node_modules",
     "exec2": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -w ./work -b ./backup2 -d ./diff -s print -o noONC12345 -k .git node_modules"
 }

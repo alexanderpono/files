@@ -60,13 +60,13 @@ export class ConOutput {
 
     printCompareResult = (result: CompareResult) => {
         if (this.parsedOptions.printOnlyInOld) {
-            console.log('onlyInOld=', result.onlyInOld);
+            console.log('onlyInOld=\n', result.onlyInOld.join('\n'));
         }
         if (this.parsedOptions.printOnlyInNew) {
-            console.log('onlyInNew=', result.onlyInNew);
+            console.log('onlyInNew=\n', result.onlyInNew.join('\n'));
         }
         if (this.parsedOptions.printChanged) {
-            console.log('changedFiles=', result.changedFiles);
+            console.log('changedFiles=\n', result.changedFiles.join('\n'));
         }
     };
 
