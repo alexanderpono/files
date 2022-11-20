@@ -2,7 +2,7 @@ import { assertParamIsSet, compare, createFsScripts, getCurDateDir } from './bac
 import { FsInput } from '@src/backup/ports/FsInput';
 import { ConOutput, DEFAULT_OPTIONS } from '@src/backup/ports/ConOutput';
 import { Scenario } from '@src/const';
-import { Options } from '@src/backup/backup.types';
+import { DEFAULT_SIZE_LIMIT, Options } from '@src/backup/backup.types';
 import path from 'path';
 
 interface PrintCompareProps {
@@ -12,6 +12,7 @@ interface PrintCompareProps {
     input: FsInput;
     output: ConOutput;
     skipFiles: string[];
+    sizeLimit: number;
 }
 
 const printCompareResult = async ({
@@ -20,7 +21,8 @@ const printCompareResult = async ({
     input,
     output,
     diffDir,
-    skipFiles
+    skipFiles,
+    sizeLimit
 }: PrintCompareProps) => {
     output.printDescription('print');
 
@@ -30,15 +32,27 @@ const printCompareResult = async ({
     const compareResult = compare(oldDirStats, newDirStats);
 
     output.printDirs(oldDirStats, newDirStats);
-    output.printCompareResult(compareResult);
+    output.printCompareResult(compareResult, oldDirStats, newDirStats);
 
-    const fsScripts = createFsScripts(oldDir, newDir, diffDir, compareResult);
-    output.printScripts(fsScripts);
+    const fsScripts = createFsScripts({
+        oldDir,
+        newDir,
+        backupDir: diffDir,
+        compare: compareResult,
+        oldDirStats,
+        newDirStats,
+        sizeLimit
+    });
+    output.printScripts(fsScripts, oldDirStats, newDirStats);
 };
 
 export const printScenario = (options: Options) => {
     const curDateDir = getCurDateDir();
     const printOptions = typeof options.options !== 'undefined' ? options.options : DEFAULT_OPTIONS;
+    const sizeLimit =
+        typeof options.sizeLimit !== 'undefined' && !isNaN(Number(options.sizeLimit))
+            ? Number(options.sizeLimit)
+            : DEFAULT_SIZE_LIMIT;
 
     assertParamIsSet(Scenario.print, options.workDir, '-w <workDir>');
     assertParamIsSet(Scenario.print, options.backupDir, '-b <backupDir>');
@@ -48,7 +62,8 @@ export const printScenario = (options: Options) => {
         oldDir: options.backupDir,
         diffDir: path.format({ dir: options.diffDir, name: curDateDir }),
         input: new FsInput(),
-        output: new ConOutput(printOptions),
-        skipFiles: options.skip
+        output: new ConOutput(printOptions, options.backupDir, options.workDir),
+        skipFiles: options.skip,
+        sizeLimit
     });
 };

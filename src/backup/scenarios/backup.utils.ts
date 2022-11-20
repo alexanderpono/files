@@ -1,4 +1,11 @@
-import { DirStats, CompareResult, fs, FsScripts } from '@src/backup/backup.types';
+import {
+    DirStats,
+    CompareResult,
+    fs,
+    FsScripts,
+    FileStats,
+    DEFAULT_SIZE_LIMIT
+} from '@src/backup/backup.types';
 
 export const getOnlyInFirst = (oldDir: DirStats, newDir: DirStats) =>
     Object.keys(oldDir).filter((path: string) => typeof newDir[path] === 'undefined');
@@ -19,27 +26,46 @@ export const compare = (oldDir: DirStats, newDir: DirStats): CompareResult => {
     };
 };
 
-export const createFsScripts = (
-    oldDir: string,
-    newDir: string,
-    backupDir: string,
-    compare: CompareResult
-): FsScripts => {
-    const backupDeleted = compare.onlyInOld.map((fName: string) =>
-        fs.copyFile(oldDir + fName, backupDir + '/toDelete' + fName)
-    );
+export interface CreateFsScriptsProps {
+    oldDir: string;
+    newDir: string;
+    backupDir: string;
+    compare: CompareResult;
+    oldDirStats: DirStats;
+    newDirStats: DirStats;
+    sizeLimit: number;
+}
+export const createFsScripts = (props: CreateFsScriptsProps): FsScripts => {
+    const { oldDir, newDir, backupDir, compare, oldDirStats, newDirStats, sizeLimit } = props;
+    const filterOldSize = (fName: string): boolean => {
+        if (sizeLimit === DEFAULT_SIZE_LIMIT) {
+            return true;
+        }
+        const fileInfo: FileStats = oldDirStats[fName];
+        return fileInfo.size < sizeLimit;
+    };
+    const filterNewSize = (fName: string): boolean => {
+        if (sizeLimit === DEFAULT_SIZE_LIMIT) {
+            return true;
+        }
+        const fileInfo: FileStats = newDirStats[fName];
+        return fileInfo.size < sizeLimit;
+    };
+    const backupDeleted = compare.onlyInOld
+        .filter(filterOldSize)
+        .map((fName: string) => fs.copyFile(oldDir + fName, backupDir + '/toDelete' + fName));
 
-    const backupUpdateOld = compare.changedFiles.map((fName: string) =>
-        fs.copyFile(oldDir + fName, backupDir + '/updateOld' + fName)
-    );
+    const backupUpdateOld = compare.changedFiles
+        .filter(filterOldSize)
+        .map((fName: string) => fs.copyFile(oldDir + fName, backupDir + '/updateOld' + fName));
 
-    const backupUpdateNew = compare.changedFiles.map((fName: string) =>
-        fs.copyFile(newDir + fName, backupDir + '/updateNew' + fName)
-    );
+    const backupUpdateNew = compare.changedFiles
+        .filter(filterNewSize)
+        .map((fName: string) => fs.copyFile(newDir + fName, backupDir + '/updateNew' + fName));
 
-    const backupNew = compare.onlyInNew.map((fName: string) =>
-        fs.copyFile(newDir + fName, backupDir + '/new' + fName)
-    );
+    const backupNew = compare.onlyInNew
+        .filter(filterNewSize)
+        .map((fName: string) => fs.copyFile(newDir + fName, backupDir + '/new' + fName));
 
     const delFromOld = compare.onlyInOld.map((fName: string) => fs.delFile(oldDir + fName));
     const copyNewFiles = compare.onlyInNew.map((fName: string) =>
@@ -52,6 +78,14 @@ export const createFsScripts = (
     const replaceOldFilesCopy = compare.changedFiles.map((fName: string) =>
         fs.copyFile(newDir + fName, oldDir + fName)
     );
+    const notDirDiffedNew = [
+        ...compare.onlyInNew.filter((fName: string) => !filterNewSize(fName)),
+        ...compare.changedFiles.filter((fName: string) => !filterNewSize(fName))
+    ];
+    const notDirDiffedOld = [
+        ...compare.onlyInOld.filter((fName: string) => !filterOldSize(fName)),
+        ...compare.changedFiles.filter((fName: string) => !filterOldSize(fName))
+    ];
 
     return {
         delFromOld,
@@ -61,7 +95,9 @@ export const createFsScripts = (
         backupNew,
         copyNewFiles,
         replaceOldFilesDel,
-        replaceOldFilesCopy
+        replaceOldFilesCopy,
+        notDirDiffedNew,
+        notDirDiffedOld
     };
 };
 

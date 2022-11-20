@@ -56,6 +56,8 @@ export interface FsScripts {
     delFromOld: DelFileAction[];
     replaceOldFilesDel: DelFileAction[];
     replaceOldFilesCopy: CopyFileAction[];
+    notDirDiffedNew: string[];
+    notDirDiffedOld: string[];
 }
 
 export interface Options {
@@ -65,4 +67,7 @@ export interface Options {
     scenario: string;
     skip: string[];
     options: string;
+    sizeLimit: string;
 }
+
+export const DEFAULT_SIZE_LIMIT = -1;

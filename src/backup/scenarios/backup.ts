@@ -2,7 +2,7 @@ import { assertParamIsSet, compare, createFsScripts, getCurDateDir } from './bac
 import { FsInput } from '@src/backup/ports/FsInput';
 import { ConOutput, DEFAULT_OPTIONS } from '@src/backup/ports/ConOutput';
 import { FsOutput } from '@src/backup/ports/FsOutput';
-import { Options } from '@src/backup/backup.types';
+import { DEFAULT_SIZE_LIMIT, Options } from '@src/backup/backup.types';
 import { Scenario } from '@src/const';
 import path from 'path';
 
@@ -14,6 +14,7 @@ export interface BackupProps {
     conOutput: ConOutput;
     fsOutput: FsOutput;
     skipFiles: string[];
+    sizeLimit: number;
 }
 
 const backup = async ({
@@ -23,7 +24,8 @@ const backup = async ({
     conOutput,
     fsOutput,
     diffDir,
-    skipFiles
+    skipFiles,
+    sizeLimit
 }: BackupProps) => {
     conOutput.printDescription('backup');
 
@@ -33,9 +35,17 @@ const backup = async ({
     const compareResult = compare(oldDirStats, newDirStats);
 
     conOutput.printDirs(oldDirStats, newDirStats);
-    conOutput.printCompareResult(compareResult);
+    conOutput.printCompareResult(compareResult, oldDirStats, newDirStats);
 
-    const fsScripts = createFsScripts(oldDir, newDir, diffDir, compareResult);
+    const fsScripts = createFsScripts({
+        oldDir,
+        newDir,
+        backupDir: diffDir,
+        compare: compareResult,
+        oldDirStats,
+        newDirStats,
+        sizeLimit
+    });
 
     const backupPromises = [
         ...fsOutput.execCopyScript(fsScripts.backupDeleted),
@@ -60,11 +70,15 @@ const backup = async ({
 export const backupScenario = (options: Options) => {
     const curDateDir = getCurDateDir();
     const printOptions = typeof options.options !== 'undefined' ? options.options : DEFAULT_OPTIONS;
+    const sizeLimit =
+        typeof options.sizeLimit !== 'undefined' && !isNaN(Number(options.sizeLimit))
+            ? Number(options.sizeLimit)
+            : DEFAULT_SIZE_LIMIT;
 
     assertParamIsSet(Scenario.print, options.workDir, '-w <workDir>');
     assertParamIsSet(Scenario.print, options.backupDir, '-b <backupDir>');
     assertParamIsSet(Scenario.print, options.diffDir, '-d <diffDir>');
-    const conOutput = new ConOutput(printOptions);
+    const conOutput = new ConOutput(printOptions, options.backupDir, options.workDir);
     backup({
         newDir: options.workDir,
         oldDir: options.backupDir,
@@ -72,6 +86,7 @@ export const backupScenario = (options: Options) => {
         input: new FsInput(),
         conOutput,
         fsOutput: new FsOutput(conOutput),
-        skipFiles: options.skip
+        skipFiles: options.skip,
+        sizeLimit
     });
 };

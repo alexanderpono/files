@@ -16,7 +16,8 @@ program
     .option('-d, --diffDir <diffDir>', 'path to directory to store differences')
     .option('-k, --skip <files...>', 'directory or file names not to process [file1,file2...]')
     .option('-s, --scenario <scenario>', 'scenario name', 'print')
-    .option('-o, --options <options>', 'output options [onONC12345]')
+    .option('-o, --options <options>', 'output options [onONC1234567]')
+    .option('-l, --sizeLimit <fileSizeLimitBytes>', 'max file size to put into diff dir')
     .parse(process.argv);
 
 const options: Options = program.opts();
