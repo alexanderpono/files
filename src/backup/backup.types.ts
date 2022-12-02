@@ -2,7 +2,9 @@ export interface FileStats {
     name: string;
     size: number;
     mtime: Date;
+    emptyDir?: boolean;
 }
+export const DIRECTORY = -1;
 
 export type DirStats = Record<string, FileStats>;
 
@@ -15,7 +17,9 @@ export interface CompareResult {
 export enum FsEvent {
     DEFAULT = '',
     COPY_FILE = 'FS/COPY_FILE',
-    DEL_FILE = 'FS/DEL_FILE'
+    MK_DIR = 'FS/MK_DIR',
+    DEL_FILE = 'FS/DEL_FILE',
+    DEL_DIR = 'FS/DEL_DIR'
 }
 
 export interface CopyFileAction {
@@ -26,10 +30,24 @@ export interface CopyFileAction {
     };
 }
 
+export interface MkDirAction {
+    type: FsEvent.MK_DIR;
+    payload: {
+        dirName: string;
+    };
+}
+
 export interface DelFileAction {
     type: FsEvent.DEL_FILE;
     payload: {
         fName: string;
+    };
+}
+
+export interface DelDirAction {
+    type: FsEvent.DEL_DIR;
+    payload: {
+        dirName: string;
     };
 }
 
@@ -43,17 +61,25 @@ export const fs = {
     delFile: (fName: string): DelFileAction => ({
         type: FsEvent.DEL_FILE,
         payload: { fName }
+    }),
+    delDir: (dirName: string): DelDirAction => ({
+        type: FsEvent.DEL_DIR,
+        payload: { dirName }
+    }),
+    mkDir: (dirName: string): MkDirAction => ({
+        type: FsEvent.MK_DIR,
+        payload: { dirName }
     })
 };
 
 export interface FsScripts {
-    backupDeleted: CopyFileAction[];
+    backupDeleted: (CopyFileAction | MkDirAction)[];
     backupUpdateOld: CopyFileAction[];
     backupUpdateNew: CopyFileAction[];
-    backupNew: CopyFileAction[];
+    backupNew: (CopyFileAction | MkDirAction)[];
 
-    copyNewFiles: CopyFileAction[];
-    delFromOld: DelFileAction[];
+    copyNewFiles: (CopyFileAction | MkDirAction)[];
+    delFromOld: (DelFileAction | DelDirAction)[];
     replaceOldFilesDel: DelFileAction[];
     replaceOldFilesCopy: CopyFileAction[];
     notDirDiffedNew: string[];

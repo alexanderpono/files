@@ -82,6 +82,9 @@ export class ConOutput {
                 `${space}${varName}=\n${values
                     .map((fileName: string) => {
                         const fileSizeBytes = stats[fileName].size;
+                        if (stats[fileName].emptyDir === true) {
+                            return `EMPTY DIR ${fileName}`;
+                        }
                         return `${fileName} (${bytesToSize(fileSizeBytes)})`;
                     })
                     .join('\n')}\n\n\n`
@@ -99,45 +102,47 @@ export class ConOutput {
     };
 
     copyFile = (from: string, to: string) => console.log(`COPY '${from}' => '${to}'`);
+    mkDir = (fName: string) => console.log(`MKDIR '${fName}'`);
     delFile = (fName: string) => console.log(`DEL '${fName}'`);
+    delDir = (fName: string) => console.log(`RMDIR '${fName}'`);
     errorMkdir = (dirName: string) => console.log(`error mkdir(${dirName})`);
     errorCopyFile = (from: string, to: string) => console.log(`error COPY '${from}' => '${to}'`);
 
     printScripts = (fsScripts: FsScripts, oldDirStats: DirStats, newDirStats: DirStats) => {
         if (this.parsedOptions.printBackupDeleted) {
-            console.log('fsScripts.backupDeleted=', fsScripts.backupDeleted);
+            console.log('1 fsScripts.backupDeleted=', fsScripts.backupDeleted);
         }
 
         if (this.parsedOptions.printBackupUpdateOld) {
-            console.log('fsScripts.backupUpdateOld=', fsScripts.backupUpdateOld);
+            console.log('2 fsScripts.backupUpdateOld=', fsScripts.backupUpdateOld);
         }
 
         if (this.parsedOptions.printBackupUpdateNew) {
-            console.log('fsScripts.backupUpdateNew=', fsScripts.backupUpdateNew);
+            console.log('3 fsScripts.backupUpdateNew=', fsScripts.backupUpdateNew);
         }
 
         if (this.parsedOptions.printBackupNew) {
-            console.log('fsScripts.backupNew=', fsScripts.backupNew);
+            console.log('4 fsScripts.backupNew=', fsScripts.backupNew);
         }
 
         if (this.parsedOptions.printDelOld) {
-            console.log('fsScripts.delFromOld=', fsScripts.delFromOld);
+            console.log('5 fsScripts.delFromOld=', fsScripts.delFromOld);
         }
 
         if (this.parsedOptions.printCopyNew) {
-            console.log('fsScripts.copyNewFiles=', fsScripts.copyNewFiles);
+            console.log('6 fsScripts.copyNewFiles=', fsScripts.copyNewFiles);
         }
 
         if (this.parsedOptions.printNotDirDiffed) {
             console.log(
-                'fsScripts.notDirDiffedNew=',
+                '7 fsScripts.notDirDiffedNew=',
                 fsScripts.notDirDiffedNew.map((fileName) => {
                     const fileSizeBytes = newDirStats[fileName].size;
                     return `${this.newDir}${fileName} (${bytesToSize(fileSizeBytes)})`;
                 })
             );
             console.log(
-                'fsScripts.notDirDiffedOld=',
+                '7 fsScripts.notDirDiffedOld=',
                 fsScripts.notDirDiffedOld.map((fileName) => {
                     const fileSizeBytes = oldDirStats[fileName].size;
                     return `${this.oldDir}${fileName} (${bytesToSize(fileSizeBytes)})`;

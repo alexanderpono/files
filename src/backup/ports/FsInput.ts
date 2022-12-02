@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { DirStats } from '@src/backup/backup.types';
+import { DIRECTORY, DirStats } from '@src/backup/backup.types';
 
 export class FsInput {
     openDirectory = async (path: string): Promise<fs.Dir> => await fs.promises.opendir(path);
@@ -23,6 +23,14 @@ export class FsInput {
             const stats = await this.getFileStats(filePath);
             if (stats.isDirectory()) {
                 const subResult = await this.getDirStats(filePath, localPath, skipFiles);
+                if (Object.keys(subResult).length === 0) {
+                    result[localPath] = {
+                        name: localPath,
+                        size: DIRECTORY,
+                        mtime: stats.mtime,
+                        emptyDir: true
+                    };
+                }
                 Object.entries(subResult).forEach(([path, data]) => {
                     result[path] = data;
                 });

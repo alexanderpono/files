@@ -1,5 +1,11 @@
 import fs from 'fs';
-import { CopyFileAction, DelFileAction } from '@src/backup/backup.types';
+import {
+    CopyFileAction,
+    DelDirAction,
+    DelFileAction,
+    FsEvent,
+    MkDirAction
+} from '@src/backup/backup.types';
 import { dirname } from 'path';
 import { ConOutput } from './ConOutput';
 
@@ -19,38 +25,54 @@ export class FsOutput {
     };
 
     delFile = (fName: string) => fs.promises.unlink(fName);
+    delDir = (fName: string) => fs.promises.rmdir(fName);
 
-    execCopyScript = (script: CopyFileAction[]) => {
+    execCopyScript = (script: (CopyFileAction | MkDirAction)[]) => {
         const ERR_MKDIR = 'ERR_MKDIR';
         const ERR_COPY_FILE = 'ERR_COPY_FILE';
 
-        return script.map((action: CopyFileAction) => {
-            this.con.copyFile(action.payload.from, action.payload.to);
-            const dirName = dirname(action.payload.to);
+        return script.map((action: CopyFileAction | MkDirAction) => {
+            if (action.type === FsEvent.COPY_FILE) {
+                this.con.copyFile(action.payload.from, action.payload.to);
+                const dirName = dirname(action.payload.to);
 
-            return fs.promises
-                .mkdir(dirName, { recursive: true })
-                .catch(() => {
+                return fs.promises
+                    .mkdir(dirName, { recursive: true })
+                    .catch(() => {
+                        this.con.errorMkdir(dirName);
+                        return Promise.reject(ERR_MKDIR);
+                    })
+                    .then(() => {
+                        return this.copyFile(action.payload.from, action.payload.to);
+                    })
+                    .catch((e) => {
+                        if (e === ERR_MKDIR) {
+                            return Promise.reject(ERR_MKDIR);
+                        }
+                        this.con.errorCopyFile(action.payload.from, action.payload.to);
+                        return Promise.reject(ERR_COPY_FILE);
+                    });
+            } else {
+                this.con.mkDir(action.payload.dirName);
+                const dirName = action.payload.dirName;
+
+                return fs.promises.mkdir(dirName, { recursive: true }).catch(() => {
                     this.con.errorMkdir(dirName);
                     return Promise.reject(ERR_MKDIR);
-                })
-                .then(() => {
-                    return this.copyFile(action.payload.from, action.payload.to);
-                })
-                .catch((e) => {
-                    if (e === ERR_MKDIR) {
-                        return Promise.reject(ERR_MKDIR);
-                    }
-                    this.con.errorCopyFile(action.payload.from, action.payload.to);
-                    return Promise.reject(ERR_COPY_FILE);
                 });
+            }
         });
     };
 
-    execDelScript = (script: DelFileAction[]) => {
-        return script.map((action: DelFileAction) => {
-            this.con.delFile(action.payload.fName);
-            return this.delFile(action.payload.fName);
+    execDelScript = (script: (DelFileAction | DelDirAction)[]) => {
+        return script.map((action: DelFileAction | DelDirAction) => {
+            if (action.type === FsEvent.DEL_FILE) {
+                this.con.delFile(action.payload.fName);
+                return this.delFile(action.payload.fName);
+            } else {
+                this.con.delDir(action.payload.dirName);
+                return this.delDir(action.payload.dirName);
+            }
         });
     };
 }
