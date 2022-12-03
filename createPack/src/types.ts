@@ -7,16 +7,22 @@ export interface FileStats {
 export type DirStats = Record<string, FileStats>;
 
 export interface Options {
-    workDir: string;
-    backupDir: string;
-    diffDir: string;
     scenario: string;
     skip: string[];
-    options: string;
-    sizeLimit: string;
+    verbose: string;
+    m1: string;
 }
 
 export enum Scenario {
     print = 'print',
-    backup = 'backup'
+    write = 'write'
+}
+
+export const DIRECTORY = -1;
+
+export interface CalcResult {
+    dirs: string[];
+    dirsToPack: string[];
+    archives: string[];
+    commands: string[];
 }
