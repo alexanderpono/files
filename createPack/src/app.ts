@@ -1,5 +1,6 @@
 import { program } from 'commander';
 import { print } from './scenarios/print';
+import { write } from './scenarios/write';
 const { description, name, version } = require('../package.json');
 import { Options, Scenario } from './types';
 
@@ -7,7 +8,7 @@ program
     .name(name)
     .version(version)
     .description(description)
-    .option('-s, --scenario <scenario>', 'scenario name (print, write)', 'print')
+    .option('-s, --scenario <scenario>', 'scenario name (print, write)', 'write')
     .option('-k, --skip <files...>', 'directory or file names not to process [file1,file2...]')
     .option('-v, --verbose', 'print detailed info')
     .option('-m1, --m1', 'set minimum compression')
@@ -25,7 +26,7 @@ switch (options.scenario) {
         break;
     }
     case Scenario.write: {
-        print(options);
+        write(options);
         break;
     }
 }
