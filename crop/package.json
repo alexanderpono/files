@@ -39,6 +39,7 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
+    "canvas": "^2.10.2",
     "commander": "^9.4.0",
     "image-clipper": "^0.4.4"
   },

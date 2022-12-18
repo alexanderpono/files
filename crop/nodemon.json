@@ -2,5 +2,7 @@
     "watch": ["src"],
     "ext": "ts,json",
     "ignore": ["src/**/*.spec.ts"],
-    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -k node_modules internals .Trash-1000 lost+found -v"
+    "exec2": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -c 1",
+    "exec3": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -i ./work/in.png -o ./work/out.jpg",
+    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -i ./work/in -o ./work/out"
 }
