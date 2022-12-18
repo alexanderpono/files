@@ -9,7 +9,7 @@ module.exports = {
     },
     entry: './src/app.ts',
     output: {
-        filename: 'cp.js',
+        filename: 'crop.js',
         path: path.resolve(__dirname, 'dist')
     },
     module: {
@@ -18,6 +18,10 @@ module.exports = {
                 test: /\.(ts)x?$/,
                 loader: require.resolve('babel-loader'),
                 exclude: /node_modules/
+            },
+            {
+                test: /\.node$/,
+                loader: "node-loader",
             }
         ]
     },

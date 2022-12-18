@@ -6,8 +6,8 @@ program
     .name(name)
     .version(version)
     .description(description)
-    .option('-i, --input <input>', 'path to input file or folder') //'path to directory with original files'
-    .option('-o, --output <output>', 'path to output file or folder') //'path to directory with original files'
+    .option('-i, --input <input>', 'path to input file or folder')
+    .option('-o, --output <output>', 'path to output file or folder')
     .option(
         '-c, --crop <number,number,number,number>',
         'cropParams X,Y,WIDTH,HEIGHT. Example: -c 0,0,100,50'

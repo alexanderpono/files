@@ -1,8 +1,8 @@
 import { FsInput } from '@src/ports/FsInput';
 import { Options } from '@src/types';
 import { program } from 'commander';
-const Clipper = require('image-clipper');
-const Canvas = require('canvas');
+import Clipper from 'image-clipper';
+import Canvas from 'canvas';
 
 interface IClipper {
     crop: (p1, p2, p3, p4) => IClipper;

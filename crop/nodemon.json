@@ -4,5 +4,6 @@
     "ignore": ["src/**/*.spec.ts"],
     "exec2": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -c 1",
     "exec3": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -i ./work/in.png -o ./work/out.jpg",
-    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -i ./work/in -o ./work/out"
+    "exec4": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -i ./work/in -o ./work/out",
+    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -i ./work/in.png -o ./work/out.jpg -c 2240,0,1920,1080 -r 1280 -q 65"
 }
