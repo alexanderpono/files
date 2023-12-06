@@ -1,0 +1,6 @@
+{
+    "watch": ["src"],
+    "ext": "ts,json",
+    "ignore": ["src/**/*.spec.ts"],
+    "exec": "ts-node --project tsconfig.json -r tsconfig-paths/register src/app.ts -k node_modules internals .Trash-1000 lost+found -v -s crop -sz 0,0,100,100 -i data/sprite.png -o data/out-sprite.png"
+}
