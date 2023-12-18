@@ -1,0 +1,5 @@
+{
+    "watch": ["src"],
+    "ext": "js,json",
+    "exec": "node src/image -k node_modules -s crop -sz 0,0,100,100 -i data/sprite.png -o data/out-sprite.png"
+}
