@@ -1,0 +1,26 @@
+{
+  "name": "numberfiles",
+  "version": "1.0.0",
+  "description": "number files in tree file",
+  "main": "src/number.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.22.1",
+    "@babel/eslint-parser": "^7.23.3",
+    "@babel/plugin-transform-class-properties": "^7.23.3",
+    "babel-plugin-module-resolver": "^5.0.0",
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^2.2.1"
+  },
+  "dependencies": {
+  }
+}
