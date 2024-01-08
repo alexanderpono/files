@@ -6,7 +6,8 @@ async function go() {
     const filesAr = filesS.trim().split('\n');
     const commands = filesAr.map((file, index) => {
         const parts = path.parse(file);
-        return `cp "data/in/${file}" "data/out/${addZero(index + 1)}${parts.ext}"`;
+        const newName = filesAr.length < 100 ? `${addZero(index + 1)}` : `${addZeros(index + 1)}`;
+        return `cp "data/in/${file}" "data/out/${newName}${parts.ext}"`;
     });
     console.log('go() commands=', commands);
     const promises = commands.map((cmd) => fsOperation(cmd));
@@ -31,6 +32,16 @@ function getDir() {
 
 function addZero(n) {
     if (n < 10) {
+        return `0${n}`;
+    }
+    return '' + n;
+}
+
+function addZeros(n) {
+    if (n < 10) {
+        return `00${n}`;
+    }
+    if (n < 100) {
         return `0${n}`;
     }
     return '' + n;
