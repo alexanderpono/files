@@ -2,5 +2,8 @@
     "watch": ["."],
     "ext": "json,js",
     "ignore": [],
-    "exec": "node src/number data/files.txt data/numberedFiles.txt"
+    "exec2": "node src/number data/in/01.txt data/out/01.txt",
+    "exec3": "node src/number data/in/02.txt data/out/02.txt",
+    "exec": "node src/number data/in/03.txt data/out/03.txt",
+    "exec4": "node src/number data/in/04.txt data/out/04.txt"
 }
